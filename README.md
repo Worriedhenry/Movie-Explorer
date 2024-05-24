@@ -85,4 +85,4 @@ Install the latest version of npm package manager
 
 ## Contact
 
-Ankit Sharma - [@your_twitter](https://twitter.com/your_username) - kaushinkankitsharma05@gmail.com
+Ankit Sharma -  kaushinkankitsharma05@gmail.com
