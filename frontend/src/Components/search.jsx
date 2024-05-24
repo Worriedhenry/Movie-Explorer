@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import axios from "axios";
 import { useSearchParams, useNavigate } from "react-router-dom"
+import Loader from "./loader";
 import MovieCard from "./movieCard";
 export default function Search() {
     const [data, setData] = React.useState(null);
@@ -11,6 +12,7 @@ export default function Search() {
     const [search, setSearch] = React.useState(searchParams.get("q") || "");
     const [movieType, setMovieType] = React.useState("");
     const [movieYear, setMovieYear] = React.useState("");
+    const [loading,setLoading]=React.useState(false);
     const apiKey = "be6ccc3d";
 
 
@@ -24,11 +26,12 @@ export default function Search() {
      */
     useEffect(() => {
         window.scrollTo(0, 0);
+        setLoading(true)
         axios.get(`https://www.omdbapi.com/?apikey=${apiKey}&s=${query}&page=${page}&type=${movieType}&y=${movieYear}`).then(
             (response) => {
-                console.log(response.data);
                 setData(response.data?.Search);
                 setTotalResults(response.data?.totalResults);
+                setLoading(false)
             }
         ).catch((err) => console.log(err))
     }, [query, searchParams.get("q"), page, movieType, movieYear])
@@ -61,9 +64,10 @@ export default function Search() {
      */
     const handleYearChange = (year) => {
         /**
-         * Reset the page to the first page of results
+         * Reset the page to the first page of results and set the data to null
          */
         setPage(1);
+        setData(null)
         /**
          * Update the movie year to the new value
          */
@@ -71,13 +75,14 @@ export default function Search() {
     }
 
     /**
-     * Handles the change of the movie type input
-     */
+     * Handles the change of the movie type input  
+     */ 
     const handleTypeChange = (type) => {
         /**
-         * Reset the page to the first page of results
+         * Reset the page to the first page of results and set the data to null
          */
         setPage(1);
+        setData(null)
         /**
          * Update the movie type to the new value
          */
@@ -87,27 +92,26 @@ export default function Search() {
 
         <form onSubmit={(e) => handleSubmit(e)} className="max-w-md mx-auto">
             <div className="relative">
+
                 <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                     <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                     </svg>
                 </div>
-                <input type="search" id="default-search" value={search} onChange={e => setSearch(e.target.value)} className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search movies" required />
-                <button type="submit" className="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+
+                <input type="search" id="default-search" value={search} onChange={e => setSearch(e.target.value)} className="block w-full p-4 ps-10 text-sm  border bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Search movies" required />
+
+                <button type="submit" className="text-white absolute end-2.5 bottom-2.5  font-medium rounded-lg text-sm px-4 py-2 bg-blue-600 hover:bg-blue-700 focus:ring-blue-800">Search</button>
+
             </div>
         </form>
+
         <div className=" flex flex-col items-center space-y-4 ">
-            {query.length == 0 ? <p className="text-center text-gray-500 dark:text-gray-400">Search your favorite movies</p> : null}
-
-            {query.length > 0 && !data ? <p className="text-center text-gray-500 dark:text-gray-400">No movies found with keyword "{query}"</p> : null}
-
-            {data && <p className="text-center text-gray-500 dark:text-gray-400">showing {(page - 1) * 10 + 1} to {page * 10 > totalResults ? totalResults : page * 10} of {totalResults} movies found</p>}
-
             <form>
 
                 <div className="space-x-4">
-                    <select value={movieType} onChange={(e) => handleTypeChange(e.target.value)} className="form-select bg-gray-700  p-2"   >
-                        <option selected disabled value="" >Type</option>
+                    <select value={movieType}  onChange={(e) => handleTypeChange(e.target.value)} className="form-select bg-gray-700  p-2"   >
+                        <option disabled value="" >Type</option>
                         <option value="">All</option>
                         <option value="movie">Movie</option>
                         <option value="series">Series</option>
@@ -117,16 +121,22 @@ export default function Search() {
                 </div>
 
             </form>
+            {query.length == 0 ? <p className="text-center text-gray-400">Search your favorite movies</p> : null}
 
+            {query.length > 0 && !loading && !data ? <p className="text-center text-gray-400">No movies found with keyword "{query}"</p> : null}
+
+            {data && <p className="text-center text-gray-400">showing {(page - 1) * 10 + 1} to {page * 10 > totalResults ? totalResults : page * 10} of {totalResults} movies found</p>}
+
+            {loading && <Loader />}
             {data && data?.map((movie) => <MovieCard movie={movie} />)}
 
             {data && <div>
 
-                <div class="flex">
-                    {page != 1 && <button onClick={() => setPage(page - 1)} class="flex fixed bottom-2.5 left-0 md:left-[25%] items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white">
+                <div className="flex">
+                    {page != 1 && <button onClick={() => setPage(page - 1)} className="flex fixed bottom-2.5 left-0 md:left-[25%] items-center justify-center px-3 h-8 text-sm font-medium  bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700 hover:text-white">
                         Previous
                     </button>}
-                    {page * 10 < totalResults && <button onClick={() => setPage(page + 1)} class="flex items-center fixed bottom-2.5 md:right-[25%] right-0 justify-center px-3 h-8 ms-3 text-sm font-medium text-gray-400 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white">
+                    {page * 10 < totalResults && <button onClick={() => setPage(page + 1)} className="flex items-center fixed bottom-2.5 md:right-[25%] right-0 justify-center px-3 h-8 ms-3 text-sm font-medium  bg-gray-800 dark:border-gray-700 text-gray-200 hover:bg-gray-700 hover:text-white">
                         Next
                     </button>}
                 </div>

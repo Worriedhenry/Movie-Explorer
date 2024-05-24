@@ -26,17 +26,23 @@ export default function Movie() {
     }
     return (
         <div className="flex md:flex-row space-y-4 flex-col px-2">
+
             <div className="md:w-1/3 flex justify-center">
                 <img src={movie?.Poster} />
             </div>  
+
             <div className="md:w-2/3 md:pr-8 space-y-2 md:text-left  text-center">
+
                 <h1 className="text-3xl font-bold">{movie?.Title}</h1>
                 <p className="flex justify-center md:justify-start space-x-2 items-center"><img className="w-4 h-4" src="/star-icon.svg" /> <span>{movie?.imdbRating}/10 , {movie?.Runtime}</span> </p>
+                
                 <div>
                     <p>{movie?.Genre}</p>
                 </div>
+
                 <p>Released on {movie?.Released}</p>
                 <p>{movie?.Plot}</p>
+
                 <div className="divide-y">
                     <p><span className="font-semibold">Directors</span> : {movie?.Director}</p>
                     <p><span className="font-semibold">Writers</span> : {movie?.Writer}</p>
@@ -45,10 +51,12 @@ export default function Movie() {
                     <p><span className="font-semibold">Language,country</span> : {movie?.Language},{movie?.Country}</p>
                     <p><span className="font-semibold">Box Office</span> : {movie?.BoxOffice}</p>
                 </div>
+
                 <div>
                     <p className="font-semibold text-lg">Ratings</p>
                     {movie?.Ratings?.map((rating) => <p>{rating.Source} : {rating.Value}</p>)}
                 </div>
+
             </div>
         </div>
     )
